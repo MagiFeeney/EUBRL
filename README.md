@@ -9,34 +9,34 @@ pip install -r requirements.txt
 Examples are given for running EUBRL. Any other algorithms in the same folder can be run in a similar manner.
 ### Chain
 ``` bash
-bash /scripts/Chain/EUBRL.sh
+bash scripts/Chain/EUBRL.sh
 ```
 
 ### Loop
 ``` bash
-bash /scripts/Loop/EUBRL.sh
+bash scripts/Loop/EUBRL.sh
 ```
 
 ### DeepSea
 #### Stochastic
 ``` bash
-bash /scripts/DeepSea-Stochastic/EUBRL.sh
+bash scripts/DeepSea-Stochastic/EUBRL.sh
 ```
 
 #### Deterministic
 ``` bash
-bash /scripts/DeepSea-Deterministic/EUBRL.sh
+bash scripts/DeepSea-Deterministic/EUBRL.sh
 ```
 
 ### LazyChain
 #### Stochastic
 ``` bash
-bash /scripts/LazyChain-Stochastic/EUBRL.sh
+bash scripts/LazyChain-Stochastic/EUBRL.sh
 ```
 
 #### Deterministic
 ``` bash
-bash /scripts/LazyChain-Deterministic/EUBRL.sh
+bash scripts/LazyChain-Deterministic/EUBRL.sh
 ```
 
 ## Acknowledgment
