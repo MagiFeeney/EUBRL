@@ -11,19 +11,16 @@ class Trial(object):
     env: Env
     min_iterations: int
         The minimum number of iterations for a trial.
-    min_episodes: int
-        The minimum number of episodes for a trial.
     max_episode_iteration: int
         The maximum number of iterations for each episode.
     num_episodes_for_success: int
         The minimum number of consecutive successful episodes for early stopping.
     """
-    def __init__(self, agent, env, env_name, min_iterations=5000, min_episodes=100, max_episode_iteration=1000, num_episodes_for_success=10):
+    def __init__(self, agent, env, env_name, min_iterations=5000, max_episode_iteration=1000, num_episodes_for_success=10):
         self.agent = agent
         self.env = env
         self.env_name = env_name
         self.min_iterations = min_iterations
-        self.min_episodes = min_episodes
         self.max_episode_iteration = max_episode_iteration
         self.num_episodes_for_success = num_episodes_for_success
 
