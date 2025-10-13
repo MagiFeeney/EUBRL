@@ -1,11 +1,12 @@
 # EUBRL: Epistemic Uncertainty Directed Bayesian Reinforcement Learning
+An implementation of EUBRL, a Bayesian RL algorithm that leverages epistemic guidance to achieve principled exploration.
 
 ## Installation
 ``` bash
 python install.py
 ```
 
-## How to Start
+## Usage
 Examples are given for running EUBRL. Any other algorithms in the same folder can be run in a similar manner.
 ### Chain
 ``` bash
