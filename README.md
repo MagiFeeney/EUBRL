@@ -2,10 +2,10 @@
 
 ## Installation
 ``` bash
-pip install -r requirements.txt
+python install.py
 ```
 
-## How to Reproduce
+## How to Start
 Examples are given for running EUBRL. Any other algorithms in the same folder can be run in a similar manner.
 ### Chain
 ``` bash

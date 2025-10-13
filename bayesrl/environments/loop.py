@@ -1,6 +1,7 @@
 import gym
 import numpy as np
 
+
 class Loop(gym.Env):
     def __init__(self, loop_length=5, left_reward=2, right_reward=1, num_loops=2):
         """

@@ -115,6 +115,7 @@ class Args:
     beta: float = 1.0
     """single consolidated parameter for Normal-Gamma"""
 
+
 def make_env(args):
     env_name = args.env_name
     if env_name == "LazyChain":
@@ -161,6 +162,7 @@ def make_env(args):
         raise NotImplementedError
 
     return env
+
 
 def make_agent(args, env):
     # Get maximum reward
@@ -327,6 +329,7 @@ def make_agent(args, env):
 
     return agent, trial
 
+
 def set_seed(seed):
     np.random.seed(seed)
     random.seed(seed)
@@ -380,6 +383,7 @@ def main(args):
 
         print(" Storing data ...")
         np.savez(filename, **data_to_store)
+
 
 if __name__ == "__main__":
     args = tyro.cli(Args)
