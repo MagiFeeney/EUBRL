@@ -255,22 +255,11 @@ class EUBRLAgent(ModelBasedAgent):
         else:
             self.U_max = max(self.U_max, np.max(self.epistemic_uncertainty))
 
-        if self.use_jax:
-            # calculate rewards
-            epistemic_uncertainty = jnp.array(self.epistemic_uncertainty)
-            pU = epistemic_uncertainty / self.U_max
+        pU = self.epistemic_uncertainty / self.U_max
 
-            if self.use_eubrl_reward:
-                rewards = (1 - pU) * jnp.array(self.reward) + pU * epistemic_uncertainty
-            else:
-                rewards = jnp.array(self.reward) + epistemic_uncertainty
+        if self.use_eubrl_reward:
+            rewards = (1 - pU) * self.reward + pU * self.epistemic_uncertainty
+        else:
+            rewards = self.reward + self.epistemic_uncertainty
 
-            self.jax_value_iteration(rewards, transition_probs)
-        else:                   # fall back to numpy
-            pU = self.epistemic_uncertainty / self.U_max
-            if self.use_eubrl_reward:
-                rewards = (1 - pU) * self.reward + pU * self.epistemic_uncertainty
-            else:
-                rewards = self.reward + self.epistemic_uncertainty
-
-            self._value_iteration(rewards, transition_probs)
+        self.value_iteration(rewards, transition_probs)

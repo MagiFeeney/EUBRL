@@ -88,7 +88,4 @@ class RMAXAgent(ModelBasedAgent):
 
             self.reward[self.terminal_indexes] = 0
 
-        if self.use_jax:
-            self.jax_value_iteration(self.reward, transition_probs)
-        else:
-            self._value_iteration(self.reward, transition_probs)
+        self.value_iteration(self.reward, transition_probs)
