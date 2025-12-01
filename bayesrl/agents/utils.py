@@ -48,7 +48,7 @@ def jax_value_iteration(rewards, transition_probs, gamma):
     """
     P = jnp.array(transition_probs, dtype=jnp.float32)
     R = jnp.array(rewards, dtype=jnp.float32)
-    S = P.shape[0]        
+    S = P.shape[0]
 
     # Pre-compute expected rewards
     if R.ndim == 3:
@@ -56,7 +56,7 @@ def jax_value_iteration(rewards, transition_probs, gamma):
     else:
         expected_rewards = R
 
-    V = jnp.zeros(S, dtype=jnp.float32)        
+    V = jnp.zeros(S, dtype=jnp.float32)
 
     def cond_fn(state):
         _, diff, iter_count = state
@@ -76,3 +76,27 @@ def jax_value_iteration(rewards, transition_probs, gamma):
     next_v_expected = jnp.einsum('ijk,k->ij', P, final_v)
     final_q = expected_rewards + gamma * next_v_expected
     return final_q
+
+
+def _argmax_breaking_ties_randomly(x):
+    """Taken from Ken."""
+    max_value = np.max(x)
+    indices_with_max_value = np.flatnonzero(x == max_value)
+    return np.random.choice(indices_with_max_value)
+
+
+@jax.jit
+def jax_argmax_breaking_ties_randomly(x, key):
+    """
+    JAX JIT version of argmax with random tie-breaking using Gumbel-Max trick.
+    """
+    # Get the maximum, potentially occur at multiple positions
+    max_value = jnp.max(x)
+
+    # create mask
+    is_max = x == max_value
+
+    # Gumbel-max
+    random_vals = jax.random.uniform(key, shape=x.shape)
+    tie_breaker = jnp.where(is_max, random_vals, -jnp.inf)
+    return jnp.argmax(tie_breaker)

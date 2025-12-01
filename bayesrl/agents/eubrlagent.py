@@ -117,10 +117,7 @@ class EUBRLAgent(ModelBasedAgent):
             self._compute_policy()
 
         # Choose next action according to policy.
-        if self.use_jax:
-            next_action = self.jax_argmax_breaking_ties_randomly(self.value_table[next_state])
-        else:
-            next_action = self._argmax_breaking_ties_randomly(self.value_table[next_state])
+        next_action = self.argmax_breaking_ties_randomly(self.value_table[next_state])
 
         self.policy_step += 1
         self.last_state = next_state

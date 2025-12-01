@@ -3,7 +3,7 @@ import jax.numpy as jnp
 from .agent import Agent
 import numpy as np
 from scipy.special import digamma
-from .utils import _value_iteration, jax_value_iteration
+from .utils import _value_iteration, jax_value_iteration, _argmax_breaking_ties_randomly, jax_argmax_breaking_ties_randomly
 
 
 class ModelBasedAgent(Agent):
@@ -50,19 +50,14 @@ class ModelBasedAgent(Agent):
         else:
             self.value_table = _value_iteration(rewards, transition_probs, self.discount_factor)
 
-    def _argmax_breaking_ties_randomly(self, x):
-        """Taken from Ken."""
-        max_value = np.max(x)
-        indices_with_max_value = np.flatnonzero(x == max_value)
-        return np.random.choice(indices_with_max_value)
+    def argmax_breaking_ties_randomly(self, x):
+        if self.use_jax:
+            self.rng_key, subkey = jax.random.split(self.rng_key)
+            next_action = jax_argmax_breaking_ties_randomly(x, subkey)
+        else:
+            next_action = _argmax_breaking_ties_randomly(x)
 
-    def jax_argmax_breaking_ties_randomly(self, x):
-        """Taken from Ken."""
-        max_value = jnp.max(x)
-        indices_with_max_value = jnp.where(x == max_value)[0]
-        # Generate a new random key for each random operation
-        self.rng_key, subkey = jax.random.split(self.rng_key)
-        return jax.random.choice(subkey, indices_with_max_value)
+        return next_action
 
     def dirichlet_mean(self, param):
         a_sum = np.sum(param, axis=-1, keepdims=True)

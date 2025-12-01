@@ -86,10 +86,7 @@ class ThompsonSampAgent(ModelBasedAgent):
             self._compute_policy()
 
         # Choose next action according to policy.
-        if self.use_jax:
-            next_action = self.jax_argmax_breaking_ties_randomly(self.value_table[next_state])
-        else:
-            next_action = self._argmax_breaking_ties_randomly(self.value_table[next_state])
+        next_action = self.argmax_breaking_ties_randomly(self.value_table[next_state])
 
         self.policy_step += 1
         self.last_state = next_state
@@ -143,5 +140,5 @@ class ThompsonSampAgent(ModelBasedAgent):
             transition_probs[self.terminal_indexes, :, self.terminal_indexes] = 1
 
             self.reward[self.terminal_indexes] = 0
-            
+
         self.value_iteration(self.reward, transition_probs)
