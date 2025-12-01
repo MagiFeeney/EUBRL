@@ -77,12 +77,6 @@ class BEBAgent(EUBRLAgent):
             self.reward[self.terminal_indexes] = 0
             self.epistemic_uncertainty[self.terminal_indexes] = 0
 
-        if self.use_jax:
-            # calculate rewards
-            rewards = jnp.array(self.reward + self.epistemic_uncertainty)
+        rewards = self.reward + self.epistemic_uncertainty
 
-            self.jax_value_iteration(rewards, transition_probs)
-        else:                   # fall back to numpy
-            rewards = self.reward + self.epistemic_uncertainty
-
-            self._value_iteration(rewards, transition_probs)
+        self.value_iteration(rewards, transition_probs)

@@ -3,6 +3,7 @@ import jax.numpy as jnp
 from .agent import Agent
 import numpy as np
 from scipy.special import digamma
+from .utils import _value_iteration, jax_value_iteration, _argmax_breaking_ties_randomly, jax_argmax_breaking_ties_randomly
 
 
 class ModelBasedAgent(Agent):
@@ -43,120 +44,20 @@ class ModelBasedAgent(Agent):
         self.transition_observations.fill(0)
         self.value_table.fill(0)
 
-    def _value_iteration(self, rewards, transition_probs):
-        """
-        Run value iteration, using procedure described in Sutton and Barto
-        (2012). The end result is an updated value_table, from which one can
-        deduce the policy for state s by taking the argmax (breaking ties
-        randomly).
-        """
+    def value_iteration(self, rewards, transition_probs):
+        if self.use_jax:
+            self.value_table = jax_value_iteration(rewards, transition_probs, self.discount_factor)
+        else:
+            self.value_table = _value_iteration(rewards, transition_probs, self.discount_factor)
 
-        value_dim = transition_probs.shape[0]
-        value = np.zeros(value_dim)
-        # value = np.max(self.value_table, axis=-1)
+    def argmax_breaking_ties_randomly(self, x):
+        if self.use_jax:
+            self.rng_key, subkey = jax.random.split(self.rng_key)
+            next_action = jax_argmax_breaking_ties_randomly(x, subkey)
+        else:
+            next_action = _argmax_breaking_ties_randomly(x)
 
-        length = len(rewards.shape)
-
-        k = 0
-        while True:
-            diff = 0
-            for s in range(value_dim):
-                old = value[s]
-                if length == 3:
-                    value[s] = \
-                    np.max(
-                        np.sum(
-                            transition_probs[s] *
-                            (rewards[s] + self.discount_factor*np.array([value,]*self.num_actions)),
-                            axis=1
-                        )
-                    )
-                elif length == 2:
-                    value[s] = \
-                    np.max(
-                        rewards[s] +
-                        np.sum(
-                            transition_probs[s] * self.discount_factor*np.array([value,]*self.num_actions),
-                            axis=1
-                        )
-                    )
-                diff = max(diff, abs(old - value[s]))
-            k += 1
-            if diff < 1e-2:
-                break
-            if k > 1e6:
-                raise Exception("Value iteration not converging. Stopped at 1e6 iterations.")
-
-        for s in range(value_dim):
-            if length == 3:
-                self.value_table[s] = \
-                    np.sum(
-                        transition_probs[s] *
-                        (rewards[s] + self.discount_factor*np.array([value,]*self.num_actions)),
-                        axis=1
-                    )
-            elif length == 2:
-                self.value_table[s] = \
-                    rewards[s] + \
-                    np.sum(
-                        transition_probs[s] * self.discount_factor*np.array([value,]*self.num_actions),
-                        axis=1
-                    )
-
-
-    def jax_value_iteration(self, rewards, transition_probs):
-        """
-        fast implementation of value iteration
-        """
-
-        transition_probs = jnp.array(transition_probs)
-        value_dim = transition_probs.shape[0]
-        value = jnp.zeros(value_dim)
-
-        length = len(rewards.shape)
-
-        def value_iteration_step(value):
-            # Compute Q-values for all states and actions
-            if length == 3:
-                q_values = jnp.sum(transition_probs * (rewards + self.discount_factor * value[jnp.newaxis, :]), axis=2)
-            elif length == 2:
-                q_values = rewards + self.discount_factor * jnp.sum(transition_probs * value[jnp.newaxis, :], axis=2)
-            # Update value function
-            new_value = jnp.max(q_values, axis=1)
-            diff = jnp.max(jnp.abs(new_value - value))
-            return new_value, diff
-
-        def cond_fn(state):
-            _, diff, k = state
-            return (diff > 1e-2) & (k < 1e6)
-
-        def body_fn(state):
-            value, _, k = state
-            new_value, diff = value_iteration_step(value)
-            return new_value, diff, k + 1
-
-        # Iterate using JAX's while_loop
-        value, _, k = jax.lax.while_loop(cond_fn, body_fn, (value, jnp.inf, 0))
-
-        # Compute final value table for optimal policy
-        if length == 3:
-            self.value_table = jnp.sum(transition_probs * (rewards + self.discount_factor * value[jnp.newaxis, :]), axis=2)
-        elif length == 2:
-            self.value_table = rewards + self.discount_factor * jnp.sum(transition_probs * value[jnp.newaxis, :], axis=2)
-
-    def _argmax_breaking_ties_randomly(self, x):
-        """Taken from Ken."""
-        max_value = np.max(x)
-        indices_with_max_value = np.flatnonzero(x == max_value)
-        return np.random.choice(indices_with_max_value)
-
-    def jax_argmax_breaking_ties_randomly(self, x):
-        """Taken from Ken."""
-        max_value = jnp.max(x)
-        indices_with_max_value = jnp.where(x == max_value)[0]
-        # Generate a new random key for each random operation
-        self.rng_key, subkey = jax.random.split(self.rng_key)
-        return jax.random.choice(subkey, indices_with_max_value)
+        return next_action
 
     def dirichlet_mean(self, param):
         a_sum = np.sum(param, axis=-1, keepdims=True)

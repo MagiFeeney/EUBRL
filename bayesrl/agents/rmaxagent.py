@@ -61,10 +61,7 @@ class RMAXAgent(ModelBasedAgent):
         self.update_model(reward, next_state)
 
         # Choose next action according to policy.
-        if self.use_jax:
-            next_action = self.jax_argmax_breaking_ties_randomly(self.value_table[next_state])
-        else:
-            next_action = self._argmax_breaking_ties_randomly(self.value_table[next_state])
+        next_action = self.argmax_breaking_ties_randomly(self.value_table[next_state])
 
         self.policy_step += 1
         self.last_state = next_state
@@ -88,7 +85,4 @@ class RMAXAgent(ModelBasedAgent):
 
             self.reward[self.terminal_indexes] = 0
 
-        if self.use_jax:
-            self.jax_value_iteration(self.reward, transition_probs)
-        else:
-            self._value_iteration(self.reward, transition_probs)
+        self.value_iteration(self.reward, transition_probs)

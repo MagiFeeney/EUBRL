@@ -68,8 +68,4 @@ class VBRBAgent(EUBRLAgent):
 
         rewards = self.reward + self.reward_bonus
 
-        if self.use_jax:
-            # calculate rewards
-            self.jax_value_iteration(jnp.array(rewards), transition_probs)
-        else:                   # fall back to numpy
-            self._value_iteration(rewards, transition_probs)
+        self.value_iteration(rewards, transition_probs)

@@ -236,8 +236,6 @@ def make_agent(args, env):
             use_jax=args.use_jax,
             env_name=args.env_name,
             rng_key=rng_key,
-            transition_var_scale=args.transition_eu_scale,
-            reward_var_scale=args.reward_eu_scale,
             transition_var_scale=args.eu_scale,
             reward_var_scale=args.eu_scale,
             use_normal_gamma_prior=args.use_normal_gamma_prior,
