@@ -53,7 +53,7 @@ class ModelBasedAgent(Agent):
     def argmax_breaking_ties_randomly(self, x):
         if self.use_jax:
             self.rng_key, subkey = jax.random.split(self.rng_key)
-            next_action = jax_argmax_breaking_ties_randomly(x, subkey)
+            next_action = jax_argmax_breaking_ties_randomly(subkey, x)
         else:
             next_action = _argmax_breaking_ties_randomly(x)
 
