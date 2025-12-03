@@ -1,5 +1,7 @@
+gym==0.26.2
+gym-notices==0.0.8
 numpy
-gym
 matplotlib
 tyro
 bsuite
+

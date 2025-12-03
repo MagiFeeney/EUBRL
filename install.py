@@ -30,16 +30,13 @@ def install_jax():
     if has_nvidia_gpu():
         cuda_major = detect_cuda_version()
         if cuda_major == "12":
-            pkg = "jax[cuda12_pip]"
+            pkg = "jax[cuda12]"
             repo = "https://storage.googleapis.com/jax-releases/jax_cuda_releases.html"
         elif cuda_major == "11":
-            pkg = "jax[cuda11_pip]"
+            pkg = "jax[cuda11]"
             repo = "https://storage.googleapis.com/jax-releases/jax_cuda_releases.html"
-        else:
-            print("⚠️ CUDA version not detected; defaulting to CPU JAX.")
-            pkg = "jax"
-            repo = None
     else:
+        print("⚠️ CUDA version not detected; defaulting to CPU JAX.")
         pkg = "jax"
         repo = None
 
@@ -48,11 +45,13 @@ def install_jax():
     if repo:
         cmd += ["-f", repo]
     subprocess.run(cmd, check=True)
-    print("✅ Installation complete.")
+    print("✅ Jax installation completed.")
 
 
 def install_requirements():
+    print(f"\n📦 Installing requirements ...")
     subprocess.run([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"], check=True)
+    print("✅ Requirements installation completed.")    
 
 
 if __name__ == "__main__":
