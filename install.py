@@ -2,6 +2,18 @@ import subprocess
 import sys
 
 
+CONDA_PREFIX = ["conda", "run", "-n", "bayesrl"]
+
+
+def create_conda_env():
+    print(f"📦 Creating conda env [bayesrl] ...")
+    subprocess.run(
+        ["conda", "create", "--name", "bayesrl", "python<3.12", "-y"],
+        check=True
+    )
+    print(f"✅ Conda env [bayesrl] created.\n")
+
+
 def has_nvidia_gpu() -> bool:
     """Check if an NVIDIA GPU is available using `nvidia-smi`."""
     try:
@@ -41,19 +53,27 @@ def install_jax():
         repo = None
 
     print(f"📦 Installing {pkg} ...")
-    cmd = [sys.executable, "-m", "pip", "install", "-U", pkg]
+    cmd = ["pip", "install", "-U", pkg]
     if repo:
         cmd += ["-f", repo]
-    subprocess.run(cmd, check=True)
-    print("✅ Jax installation completed.")
+    subprocess.run(
+        CONDA_PREFIX + cmd,
+        check=True
+    )
+    print("✅ Jax installation completed.\n")
 
 
 def install_requirements():
-    print(f"\n📦 Installing requirements ...")
-    subprocess.run([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"], check=True)
-    print("✅ Requirements installation completed.")    
+    print(f"📦 Installing requirements ...")
+    subprocess.run(
+        CONDA_PREFIX + ["pip", "install", "-r", "requirements.txt"],
+        check=True
+    )
+    print("✅ Requirements installation completed.\n")
 
 
 if __name__ == "__main__":
+    create_conda_env()
     install_jax()
     install_requirements()
+    print("🔥 Everything is set; please activate [bayesrl] for use.")
