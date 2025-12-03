@@ -86,17 +86,13 @@ def _argmax_breaking_ties_randomly(x):
 
 
 @jax.jit
-def jax_argmax_breaking_ties_randomly(x, key):
+def jax_argmax_breaking_ties_randomly(key, x):
     """
-    JAX JIT version of argmax with random tie-breaking using Gumbel-Max trick.
-    """
-    # Get the maximum, potentially occur at multiple positions
-    max_value = jnp.max(x)
-
-    # create mask
-    is_max = x == max_value
-
-    # Gumbel-max
-    random_vals = jax.random.uniform(key, shape=x.shape)
-    tie_breaker = jnp.where(is_max, random_vals, -jnp.inf)
-    return jnp.argmax(tie_breaker)
+    JAX JIT compatible version with a non-variable length approach.
+    """    
+    max_val = jnp.max(x)
+    mask = x == max_val                            # Get the mask of the maximum
+    cumsum = jnp.cumsum(mask)                      # Get the cumulative sum of the mask
+    num_ties = cumsum[-1]                          # Get the number of ties
+    idx = jax.random.randint(key, (), 0, num_ties) # Sample one index from [0, 1, ..., num_ties - 1]
+    return jnp.searchsorted(cumsum, idx + 1)       # Find the first occurance of the value idx + 1 and return its position
